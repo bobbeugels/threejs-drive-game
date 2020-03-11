@@ -109,67 +109,15 @@ function main() {
   const render = (time) => {
     // time *= 0.0001
 
-    if ('ArrowUp' in keysPressed) {
-      car.isMoving = true
-      car.isAccelerating = true
-    } else {
-      car.isAccelerating = false
-      // car.acceleration = car.initialAcceleration
-      // car.velocity = car.initialVelocity
-    }
-    if ('ArrowDown' in keysPressed) {
-      // car.isMoving = false
-      // car.isMoving = true
-      car.isBraking = true
-    } else {
-      car.isBraking = false
-      // car.acceleration = car.initialAcceleration
-      // car.velocity = car.initialVelocity
-    }
-
-    if ('ArrowLeft' in keysPressed &&'ArrowRight' in keysPressed) {
-      car.isRotating = false
-    } else if ('ArrowLeft' in keysPressed) {
-      car.isRotating = true
-      car.moveAngle += car.rotationalSpeed
-    } else if ('ArrowRight' in keysPressed) {
-      car.isRotating = true
-      car.moveAngle -= car.rotationalSpeed
-    } else {
-      car.isRotating = false
-    }
-
-    if(car.isMoving) {
-      if (car.isBraking) {
-        car.velocity -= .009
-      } else  if (car.isAccelerating) {
-        car.velocity += car.initialVelocity * car.acceleration
-        car.acceleration = car.acceleration * car.accelerationDecrease
-  
-        if (car.velocity > car.maximumVelocity) {
-          car.velocity = car.maximumVelocity
-        }
-      } else {
-        car.velocity -= .003
-      }
-  
-      if (car.velocity <= 0) {
-        car.isMoving = false
-        car.velocity = car.initialVelocity
-        car.acceleration = car.initialAcceleration
-      }
-
-      const z = car.velocity * Math.cos(-car.moveAngle)
-      const x = car.velocity * Math.sin(-car.moveAngle)
-
-      car.object.position.x += x
-      car.object.position.z -= z
-      camera.position.x += x
-      camera.position.z -= z
+    car.changeState(keysPressed)
+    if (car.isMoving) {
+      const carPosition = car.movement()
+      camera.position.x += carPosition.x
+      camera.position.z -= carPosition.z
     }
 
     if(car.isRotating) {
-      car.object.rotation.y = car.moveAngle
+      car.rotate()
     }
     
     if (resizeRendererToDisplaySize(renderer)) {

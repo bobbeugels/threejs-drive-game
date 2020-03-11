@@ -107,36 +107,24 @@ function main() {
   }
 
   const render = (time) => {
-    time *= 0.0001
-
-    // if ('ArrowUp' in keysPressed) {
-    //   car.isMoving = true
-    //   car.isAccelerating = true
-    // } else {
-    //   car.isAccelerating = false
-    //   car.acceleration = car.initialAcceleration
-    //   // car.velocity = car.initialVelocity
-    // }
-    // if ('ArrowDown' in keysPressed) {
-    //   car.isMoving = true
-    //   car.isDecelerating = true
-    // } else {
-    //   car.isDecelerating = false
-    //   car.acceleration = car.initialAcceleration
-    //   // car.velocity = car.initialVelocity
-    // }
-
-    // if(!car.isAccelerating && !car.isDecelerating) {
-    //   car.isMoving = false;
-    // }
+    // time *= 0.0001
 
     if ('ArrowUp' in keysPressed) {
       car.isMoving = true
       car.isAccelerating = true
     } else {
-      car.isMoving = false
-      car.acceleration = car.initialAcceleration
-      car.velocity = car.initialVelocity
+      car.isAccelerating = false
+      // car.acceleration = car.initialAcceleration
+      // car.velocity = car.initialVelocity
+    }
+    if ('ArrowDown' in keysPressed) {
+      // car.isMoving = false
+      // car.isMoving = true
+      car.isBraking = true
+    } else {
+      car.isBraking = false
+      // car.acceleration = car.initialAcceleration
+      // car.velocity = car.initialVelocity
     }
 
     if ('ArrowLeft' in keysPressed &&'ArrowRight' in keysPressed) {
@@ -152,13 +140,23 @@ function main() {
     }
 
     if(car.isMoving) {
-      car.velocity += car.initialVelocity * car.acceleration
-      car.acceleration = car.acceleration * car.accelerationDecrease
-
-      console.log(car.velocity);
-
-      if (car.velocity > car.maximumVelocity) {
-        car.velocity = car.maximumVelocity
+      if (car.isBraking) {
+        car.velocity -= .009
+      } else  if (car.isAccelerating) {
+        car.velocity += car.initialVelocity * car.acceleration
+        car.acceleration = car.acceleration * car.accelerationDecrease
+  
+        if (car.velocity > car.maximumVelocity) {
+          car.velocity = car.maximumVelocity
+        }
+      } else {
+        car.velocity -= .003
+      }
+  
+      if (car.velocity <= 0) {
+        car.isMoving = false
+        car.velocity = car.initialVelocity
+        car.acceleration = car.initialAcceleration
       }
 
       const z = car.velocity * Math.cos(-car.moveAngle)

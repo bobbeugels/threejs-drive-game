@@ -10,6 +10,8 @@ export default class Car {
   velocity = this.initialVelocity
   acceleration = this.initialAcceleration
   accelerationDecrease = .99
+  rollOutDeceleration = 1
+  rollOutDecrease = .99
   maximumVelocity = .6
   rotationalSpeed = .07
   moveAngle = 0

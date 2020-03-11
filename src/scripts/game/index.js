@@ -106,15 +106,27 @@ function main() {
     return needResize;
   }
 
-  const render = (time) => {
-    // time *= 0.0001
-
+  let carPosition;
+  setInterval(() => {
     car.changeState(keysPressed)
     if (car.isMoving) {
-      const carPosition = car.movement()
+      carPosition = car.movement()
+      car.object.position.x += carPosition.x
+      car.object.position.z -= carPosition.z
       camera.position.x += carPosition.x
       camera.position.z -= carPosition.z
     }
+  }, 16)
+  
+  const render = (time) => {
+    // time *= 0.0001
+
+    // if (carPosition) {
+    //   car.object.position.x += carPosition.x
+    //   car.object.position.z -= carPosition.z
+    //   camera.position.x += carPosition.x
+    //   camera.position.z -= carPosition.z
+    // }
 
     if(car.isRotating) {
       car.rotate()
@@ -131,7 +143,9 @@ function main() {
     requestAnimationFrame(render)
   }
   requestAnimationFrame(render);
-  
+
+
+  // Graphs
   let velocityData = []
   let labels = []
   let hasLogged = false;
@@ -143,7 +157,6 @@ function main() {
       labels: labels,
       datasets: [{
         label: 'Velocity',
-        // backgroundColor: window.chartColors.red,
         borderColor: '#FF0000',
         data: velocityData,
         fill: false,

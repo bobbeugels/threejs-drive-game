@@ -6,22 +6,15 @@ export default class Car {
   }
 
   maxVelocity = .3
-  // maxAcceleration
-  initialVelocity = .003
-  initialAcceleration = 1
-  velocity = this.initialVelocity
-  acceleration = this.initialAcceleration
-  accelerationDecrease = .99
-  rollOutDeceleration = 1
-  rollOutDecrease = .99
-  maximumVelocity = .6
+  torque = .003
+  velocity = 0
+  acceleration = 0
   rotationalSpeed = .07
   moveAngle = 0
   isMoving = false
   isAccelerating = false
   isBraking = false
   isRotating = false
-  hasStopped = false
   boxWidth = 0.5
   boxHeight = 0.5
   boxDepth = 1
@@ -33,45 +26,20 @@ export default class Car {
   }
 
   movement = () => {
-    // Acceleration needs improvement
-    // There should be a max velocity
-    // Velocity should be 0 initially
-    // console.log(this.velocity / this.maxVelocity);
-    // 1.0 = 0 acceleration
-    // 0 = 100% acceleration
+    this.acceleration = 1 - this.velocity / this.maxVelocity
 
-    const percentageMaxVelocity = this.velocity / this.maxVelocity;
-    const acceleration = 1 - percentageMaxVelocity
-
-    // console.log(this.acceleration);
-
-
-
-    if (this.isBraking) {
-      this.velocity -= .009
-    } else  if (this.isAccelerating) {
-      this.velocity += this.initialVelocity * this.acceleration
-      this.acceleration = this.acceleration * this.accelerationDecrease
-
-      if (this.velocity > this.maximumVelocity) {
-        this.velocity = this.maximumVelocity
-      }
-    } else {
-      this.velocity -= .003
-    }
+    this.velocity = this.isBraking
+      ? this.velocity - .009
+      : this.isAccelerating
+        ? this.velocity + this.torque * this.acceleration
+        : this.velocity -= .003
 
     if (this.velocity <= 0) {
       this.isMoving = false
-      this.velocity = this.initialVelocity
-      this.acceleration = this.initialAcceleration
     }
 
     const z = this.velocity * Math.cos(-this.moveAngle)
     const x = this.velocity * Math.sin(-this.moveAngle)
-
-    this.object.position.x += x
-    this.object.position.z -= z
-
     return { x, z }
   }
 

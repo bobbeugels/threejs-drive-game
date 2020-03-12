@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Chart from 'chart.js'
 import MapGenerator from './MapGenerator'
 import Car from './Car'
+import Tree from './Tree';
 
 window.onload = main;
 
@@ -12,33 +13,48 @@ function main() {
   const renderer = new THREE.WebGLRenderer({ canvas })
   
   // Camera
-  const nearClipping = 1
-  const farClipping = 1000
-  const aspect = window.innerWidth / window.innerHeight;
-  const d = 10;
-  const camera = new THREE.OrthographicCamera( - d * aspect, d * aspect, d, - d, nearClipping, farClipping );
+  const nearClipping = 20
+  const farClipping = 50
+  const aspect = window.innerWidth / window.innerHeight
+  const d = 10
+  const camera = new THREE.OrthographicCamera( - d * aspect, d * aspect, d, - d, nearClipping, farClipping )
   
   // Scene
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x09409B);
 
   camera.position.set( 20, 20, 20 ); // all components equal
-  camera.lookAt( 0, 0, 0 ); // or the origin
+  camera.lookAt( 0, 0, 0 );
   
   // Light
   {
     const color = 0xFFFFFF
     const intensity = 1
-    const light = new THREE.DirectionalLight(color, intensity)
-    light.position.set(-5, 5, 5)
-    scene.add(light)
-    light.shadowCameraNear = 1;
-    light.shadowCameraFar = 1000;
-    light.shadowMapVisible = true;
-    light.castShadow = true;
+    const dirLight = new THREE.DirectionalLight(color, intensity)
+    dirLight.position.set( -1, 0.75, 1 );
+    dirLight.position.multiplyScalar( 50);
+    scene.add(dirLight)
+    dirLight.castShadow = true;
+
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = dirLight.shadowMapHeight = 1024*2;
+
+    const d = 70;
+
+    dirLight.shadow.camera.left = -d;
+    dirLight.shadow.camera.right = d;
+    dirLight.shadow.camera.top = d;
+    dirLight.shadow.camera.bottom = -d;
+    dirLight.shadow.camera.far = 3500;
+
     {
-      const light = new THREE.AmbientLight( 0x09409B, 2 ); // soft white light
-      scene.add(light)
+      var light = new THREE.AmbientLight( 0x404040 ); // soft white light
+      scene.add( light );
+    }
+
+    {
+      const hemiLight = new THREE.HemisphereLight( 0x0000ff, 0x00ff00, 0.6 ); 
+      scene.add(hemiLight)
     }
   }
 
@@ -51,31 +67,25 @@ function main() {
   scene.add(car.object)
 
   // Scenery
-  const map = new MapGenerator(100, 100);
+  const map = new MapGenerator(100, 100)
 
+  const treeGroup = new THREE.Group()
   map.mapArray.forEach((zArray, x) => {
     zArray.forEach((element, z) => {
       if (element.value === 'x') {
-        const boxWidth = 0.5
-        const boxHeight = 1
-        const boxDepth = 0.5
-        const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth)
-        const material = new THREE.MeshLambertMaterial({ color: 0x288b22 })
-        const tree = new THREE.Mesh(geometry, material)
-        scene.add(tree)
-        tree.position.x = x - (map.mapArray.length / 2);
-        tree.position.z = z - (zArray.length / 2);
-        tree.position.y = 0.5;
-        tree.castShadow = true
-        tree.receiveShadow = true
+        const tree = new Tree(x, z).tree
+        treeGroup.add(tree)
       }
     });
   });
+  scene.add(treeGroup)
+  treeGroup.position.x = -50
+  treeGroup.position.z = -50
 
   // Floor
   {
     const geometry = new THREE.PlaneGeometry( 100, 100, 100 );
-    const material = new THREE.MeshLambertMaterial( {color: 0x09409B, side: THREE.DoubleSide} );
+    const material = new THREE.MeshLambertMaterial( {color: 0x4b7d04, side: THREE.DoubleSide} );
     const plane = new THREE.Mesh( geometry, material );
     scene.add( plane );
     plane.position.y = 0;
@@ -106,11 +116,11 @@ function main() {
     return needResize;
   }
 
+  let then = Date.now();
+  let frameCount = 0;
+  const startTime = then
   const fps = 50
   const fpsInterval = 1000 / fps;
-  let then = Date.now();
-  const startTime = then
-  let frameCount = 0;
 
   const refreshRateContainer = document.querySelector('#refresh-rate');
 
@@ -137,10 +147,17 @@ function main() {
       car.changeState(keysPressed)
       if (car.isMoving) {
         const carPosition = car.movement()
-        car.object.position.x += carPosition.x
-        car.object.position.z -= carPosition.z
-        camera.position.x += carPosition.x
-        camera.position.z -= carPosition.z
+        const newXPosition = Math.floor(car.object.position.x + carPosition.x) + 50
+        const newZPosition = Math.floor(car.object.position.z + carPosition.z) + 50
+
+        if (map.mapArray[newXPosition][newZPosition].value == 'x') {
+          car.stop();
+        } else {
+          car.object.position.x += carPosition.x
+          car.object.position.z -= carPosition.z
+          camera.position.x += carPosition.x
+          camera.position.z -= carPosition.z
+        }
       }
       if (resizeRendererToDisplaySize(renderer)) {
         const canvas = renderer.domElement

@@ -27,6 +27,11 @@ export default class Car {
     this.object.rotation.y = this.moveAngle
   }
 
+  stop = () => {
+    this.isMoving = false
+    this.velocity = 0
+  }
+
   movement = () => {
     this.acceleration = 1 - this.velocity / this.maxVelocity
 

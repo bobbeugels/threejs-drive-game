@@ -7,6 +7,8 @@ export default class Car {
 
   maxVelocity = .3
   torque = .003
+  brakingPower = .007
+  friction = .002
   velocity = 0
   acceleration = 0
   rotationalSpeed = .07
@@ -29,10 +31,10 @@ export default class Car {
     this.acceleration = 1 - this.velocity / this.maxVelocity
 
     this.velocity = this.isBraking
-      ? this.velocity - .009
+      ? this.velocity - this.friction - this.brakingPower
       : this.isAccelerating
-        ? this.velocity + this.torque * this.acceleration
-        : this.velocity -= .003
+        ? (this.velocity + this.torque * this.acceleration)
+        : this.velocity -= this.friction
 
     if (this.velocity <= 0) {
       this.isMoving = false

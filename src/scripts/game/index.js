@@ -106,41 +106,50 @@ function main() {
     return needResize;
   }
 
-  let carPosition;
-  setInterval(() => {
-    car.changeState(keysPressed)
-    if (car.isMoving) {
-      carPosition = car.movement()
-      car.object.position.x += carPosition.x
-      car.object.position.z -= carPosition.z
-      camera.position.x += carPosition.x
-      camera.position.z -= carPosition.z
-    }
-  }, 16)
-  
-  const render = (time) => {
-    // time *= 0.0001
+  const fps = 50
+  const fpsInterval = 1000 / fps;
+  let then = Date.now();
+  const startTime = then
+  let frameCount = 0;
 
-    // if (carPosition) {
-    //   car.object.position.x += carPosition.x
-    //   car.object.position.z -= carPosition.z
-    //   camera.position.x += carPosition.x
-    //   camera.position.z -= carPosition.z
-    // }
+  const refreshRateContainer = document.querySelector('#refresh-rate');
 
-    if(car.isRotating) {
-      car.rotate()
-    }
-    
-    if (resizeRendererToDisplaySize(renderer)) {
-      const canvas = renderer.domElement
-      camera.aspect = canvas.clientWidth / canvas.clientHeight
-      camera.updateProjectionMatrix()
-    }
-
-    renderer.render(scene, camera)
-
+  const render = () => {
     requestAnimationFrame(render)
+
+    const now = Date.now();
+    const elapsed = now - then;
+
+    if (elapsed > fpsInterval) {
+      // Get ready for next frame by setting then=now, but also adjust for your
+      // specified fpsInterval not being a multiple of RAF's interval (16.7ms)
+      then = now - (elapsed % fpsInterval);
+
+      // Start drawing
+      var sinceStart = now - startTime;
+      var currentFps = Math.round(1000 / (sinceStart / ++frameCount) * 100) / 100;
+      refreshRateContainer.innerHTML =`Elapsed time= ${Math.round(sinceStart / 1000 * 100) / 100} secs @ ${currentFps} fps.`
+
+      if(car.isRotating) {
+        car.rotate()
+      }
+
+      car.changeState(keysPressed)
+      if (car.isMoving) {
+        const carPosition = car.movement()
+        car.object.position.x += carPosition.x
+        car.object.position.z -= carPosition.z
+        camera.position.x += carPosition.x
+        camera.position.z -= carPosition.z
+      }
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement
+        camera.aspect = canvas.clientWidth / canvas.clientHeight
+        camera.updateProjectionMatrix()
+      }
+  
+      renderer.render(scene, camera)
+    }
   }
   requestAnimationFrame(render);
 

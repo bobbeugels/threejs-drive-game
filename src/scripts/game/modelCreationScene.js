@@ -71,33 +71,35 @@ function main() {
       // cylinder.rotation.z = degreesToRadians(90)
       // scene.add(cylinder);
 
-      // void ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, x, y);
-      // Parameters
-      // cp1x
-      // The x-axis coordinate of the first control point.
-      // cp1y
-      // The y-axis coordinate of the first control point.
-      // cp2x
-      // The x-axis coordinate of the second control point.
-      // cp2y
-      // The y-axis coordinate of the second control point.
-      // x
-      // The x-axis coordinate of the end point.
-      // y
-      // The y-axis coordinate of the end point.
 
-      var circleShape = new THREE.Shape();
+      // circleShape.moveTo( -1, 0 );
+      // circleShape.bezierCurveTo( -1, 0.5, -0.5, 1, 0, 1 );
+      // circleShape.bezierCurveTo( 0.5, 1, 1, 0.5, 1, 0 );
+      // circleShape.bezierCurveTo( 1, -0.5, 0.5, -1, 0, -1 );
+      // circleShape.bezierCurveTo( -0.5, -1, -1, -0.5, -1, 0 );
 
-      circleShape.moveTo( 0, 0 );
-      circleShape.bezierCurveTo( 0, 0, 1, 1, 2, 2 );
+      const scale = .1
+      const circleShape = new THREE.Shape();
+      circleShape.arc(0, 0, .5, 0, degreesToRadians(359));
 
-      var extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+      const innerCircleShape = new THREE.Shape();
+      innerCircleShape.arc(0, 0, .2, 0, degreesToRadians(359));
+
+      // circleShape.clip(innerCircleShape);
+
+      var extrudeSettings = { amount: .5, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: .3, bevelThickness: .3 };
 
       var geometry = new THREE.ExtrudeBufferGeometry( circleShape, extrudeSettings );
 
-      var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial() );
+      var wheel = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial({ color: 0x333333 }));
+      wheel.scale.set(scale, scale, scale)
 
-      scene.add(mesh)
+      scene.add(wheel)
+
+      // TorusGeometry(radius : Float, tube : Float, radialSegments : Integer, tubularSegments : Integer, arc : Float)
+      var geometry = new THREE.TorusGeometry( .5, .1, 16, 100 );
+      var torus = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial({ color: 0x333333 }) );
+      // scene.add( torus );
     }
   }
 

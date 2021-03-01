@@ -47,7 +47,7 @@
     "lodash": "^4.17.15",
     "random": "^2.1.1",
     "simplex-noise": "^2.4.0",
-    "three": "^0.114.0"
+    "three": "^0.125.0"
   },
   "browserslist": [
     "> 1%",

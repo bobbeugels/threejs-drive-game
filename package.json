@@ -44,7 +44,7 @@
     "chart.js": "^2.9.3",
     "core-js": "^3.6.4",
     "gh-pages": "^2.2.0",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "random": "^2.1.1",
     "simplex-noise": "^2.4.0",
     "three": "^0.114.0"
